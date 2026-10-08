@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit 3: Right Now! - Year 3 Quest</title>
+    <style>
+        :root {
+            --primary-yellow: #FFD166;
+            --primary-pink: #FF6B6B;
+            --primary-blue: #4ECDC4;
+            --primary-purple: #A06CD5;
+            --primary-green: #06D6A0;
+            --card-bg: #FFFFFF;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Fredoka', cursive, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* App Container */
+        #app-container {
+            width: 100%;
+            max-width: 900px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #F7F9FC;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Bar */
+        header {
+            background: linear-gradient(90deg, var(--primary-pink), var(--primary-purple));
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.25);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .star-count {
+            color: #FFD166;
+            font-size: 1.2rem;
+        }
+
+        /* Progress Bar Nav */
+        .progress-nav {
+            display: none;
+            background: #EDF2F7;
+            padding: 10px;
+            gap: 5px;
+            overflow-x: auto;
+        }
+
+        .progress-nav.active-nav {
+            display: flex;
+        }
+
+        .step-btn {
+            flex: 1;
+            padding: 8px 4px;
+            border: none;
+            border-radius: 8px;
+            background: #CBD5E0;
+            color: #4A5568;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .step-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .step-btn.completed {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        /* Screen Views */
+        .screen {
+            display: none;
+            flex: 1;
+            padding: 25px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.4s ease-in-out;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: flex !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography & Components */
+        h1, h2, h3 {
+            margin-top: 0;
+            color: #2D3748;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--primary-purple);
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, #FFD166 0%, #F7B801 100%);
+            border: none;
+            border-bottom: 5px solid #C79200;
+            color: #4A3B00;
+            padding: 14px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-action:active {
+            transform: translateY(3px);
+            border-bottom: 2px solid #C79200;
+        }
+
+        /* Screen 0: Login */
+        .login-card {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            border: 4px solid var(--primary-yellow);
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 1.2rem;
+            border: 3px solid #CBD5E0;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            outline: none;
+        }
+
+        .login-card input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        /* Screen 1: Set Induction (Simon Says) */
+        .simon-card {
+            background: white;
+            border: 4px solid var(--primary-blue);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .simon-emoji {
+            font-size: 5rem;
+            margin: 15px 0;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        /* Screen 2: Presentation */
+        .builder-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .pill-btn {
+            background: white;
+            border: 2px solid var(--primary-purple);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill-btn.selected {
+            background: var(--primary-purple);
+            color: white;
+        }
+
+        .sentence-preview {
+            background: #EDF2F7;
+            border: 2px dashed #CBD5E0;
+            border-radius: 15px;
+            padding: 15px 25px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2D3748;
+            margin: 15px 0;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Screen 3: Practice (Workbook Quiz) */
+        .quiz-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            border-left: 6px solid var(--primary-pink);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .option-btn {
+            background: #F7FAFC;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-blue);
+            background: #E6FFFA;
+        }
+
+        /* Screen 4: Production (Listen & Draw Studio) */
+        .drawing-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        canvas {
+            background: white;
+            border: 3px solid #CBD5E0;
+            border-radius: 15px;
+            touch-action: none;
+            cursor: crosshair;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .canvas-tools {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Screen 5: Closure (Exit Ticket) */
+        .ticket-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            border: 3px dashed var(--primary-purple);
+            text-align: center;
+        }
+
+        .ticket-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #CBD5E0;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); }
+            100% { transform: scale(1); }
+        }
+
+        .audio-btn {
+            background: var(--primary-purple);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 5px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            .step-btn { font-size: 0.7rem; padding: 6px 2px; }
+            canvas { width: 100% !important; height: auto !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <!-- Header -->
+    <header>
+        <div style="font-weight: bold; font-size: 1.1rem;">🏃‍♂️ Unit 3: Right Now!</div>
+        <div class="user-badge">
+            <span id="nav-username">Pupil</span>
+            <span class="star-count">★ <span id="star-score">0</span></span>
+        </div>
+    </header>
+
+    <!-- Navigation Progress -->
+    <div class="progress-nav" id="progress-nav">
+        <button class="step-btn active" onclick="switchTab(1)">1. Warmup</button>
+        <button class="step-btn" onclick="switchTab(2)">2. Learn</button>
+        <button class="step-btn" onclick="switchTab(3)">3. Workbook</button>
+        <button class="step-btn" onclick="switchTab(4)">4. Listen & Draw</button>
+        <button class="step-btn" onclick="switchTab(5)">5. Exit Ticket</button>
+    </div>
+
+    <!-- SCREEN 0: LOGIN -->
+    <div class="screen active" id="screen-0">
+        <div class="login-card">
+            <div style="font-size: 4rem;">🎨</div>
+            <h2>Welcome to Class 3 Seroja!</h2>
+            <p style="color: #718096;">Enter your name to start today's lesson!</p>
+            <input type="text" id="input-username" placeholder="Type your name here..." autocomplete="off">
+            <br>
+            <button class="btn-action" type="button" onclick="loginPupil()">START QUEST 🚀</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 1: SET INDUCTION (Simon Says) -->
+    <div class="screen" id="screen-1">
+        <h2>Stage 1: Simon Says Motion Game! 🎮</h2>
+        <p style="text-align: center;">Listen to teacher Simon's command and choose the matching action!</p>
+        
+        <div class="simon-card">
+            <button class="audio-btn" onclick="speakCurrentSimon()">🔊 Listen Command</button>
+            <div class="simon-emoji" id="simon-emoji">🏸</div>
+            <h3 id="simon-command" style="color: var(--primary-purple);">"Simon says, act like you are playing badminton!"</h3>
+            
+            <div class="options-grid" id="simon-options"></div>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: PRESENTATION -->
+    <div class="screen" id="screen-2">
+        <h2>Stage 2: Create Sentences! 🧩</h2>
+        <p style="text-align: center;">Pick a <b>Pronoun</b> and an <b>Action</b> to form a correct sentence!</p>
+
+        <div style="font-size: 4rem; margin: 10px;" id="builder-emoji">🏃‍♂️</div>
+
+        <div class="sentence-preview" id="sentence-preview">Select a subject pronoun...</div>
+
+        <div style="width: 100%; max-width: 600px;">
+            <p style="font-weight: bold; margin-bottom: 5px;">1. Choose Pronoun:</p>
+            <div class="builder-grid" id="pronoun-grid">
+                <button class="pill-btn" onclick="selectPronoun('He is', '👨', event)">He is</button>
+                <button class="pill-btn" onclick="selectPronoun('She is', '👩', event)">She is</button>
+                <button class="pill-btn" onclick="selectPronoun('They are', '🧑‍🤝‍🧑', event)">They are</button>
+                <button class="pill-btn" onclick="selectPronoun('I am', '🙋‍♂️', event)">I am</button>
+            </div>
+
+            <p style="font-weight: bold; margin-bottom: 5px; margin-top: 15px;">2. Choose Action Verb:</p>
+            <div class="builder-grid" id="verb-grid">
+                <button class="pill-btn" onclick="selectVerb('playing badminton.', '🏸', event)">playing badminton</button>
+                <button class="pill-btn" onclick="selectVerb('playing the guitar.', '🎸', event)">playing guitar</button>
+                <button class="pill-btn" onclick="selectVerb('swimming.', '🏊‍♂️', event)">swimming</button>
+                <button class="pill-btn" onclick="selectVerb('singing.', '🎤', event)">singing</button>
+            </div>
+        </div>
+
+        <button class="audio-btn" style="margin-top: 15px;" onclick="speakSentence()">🔊 Speak Sentence</button>
+        <button class="btn-action" onclick="checkSentenceBuilder()">Check Sentence ✅</button>
+    </div>
+
+    <!-- SCREEN 3: PRACTICE -->
+    <div class="screen" id="screen-3">
+        <h2>Stage 3: Workbook Page 18 Practice 📖</h2>
+        <p style="text-align: center;">Question <span id="quiz-num">1</span> of 5: Read and choose the correct answer!</p>
+
+        <div class="quiz-card">
+            <div style="font-size: 3.5rem; text-align: center;" id="quiz-emoji">🎸</div>
+            <h3 id="quiz-question" style="text-align: center; margin: 15px 0;">Look at the picture. What is he doing?</h3>
+            <div class="options-grid" id="quiz-options"></div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: PRODUCTION -->
+    <div class="screen" id="screen-4">
+        <h2>Stage 4: Listen and Draw Studio! 🎨</h2>
+        <p style="text-align: center;">Listen to teacher's text, then draw the activity on the canvas!</p>
+
+        <div style="background: white; padding: 15px; border-radius: 12px; width: 100%; max-width: 600px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+            <button class="audio-btn" onclick="readListenText()">🔊 Read Text Aloud</button>
+            <p id="listening-text-display" style="font-weight: bold; font-size: 1.1rem; color: #2D3748; margin-top: 8px;">
+                "Ali is playing football in the park."
+            </p>
+        </div>
+
+        <div class="drawing-container">
+            <canvas id="draw-canvas" width="350" height="220"></canvas>
+            
+            <div class="canvas-tools">
+                <div class="color-dot" style="background: #000000;" onclick="setColor('#000000')"></div>
+                <div class="color-dot" style="background: #FF6B6B;" onclick="setColor('#FF6B6B')"></div>
+                <div class="color-dot" style="background: #4ECDC4;" onclick="setColor('#4ECDC4')"></div>
+                <div class="color-dot" style="background: #06D6A0;" onclick="setColor('#06D6A0')"></div>
+                <div class="color-dot" style="background: #A06CD5;" onclick="setColor('#A06CD5')"></div>
+                <button style="border-radius: 15px; border: 1px solid #CBD5E0; padding: 4px 12px; cursor: pointer;" onclick="clearCanvas()">Clear 🗑️</button>
+            </div>
+
+            <div style="width: 100%; margin-top: 10px;">
+                <label style="font-weight: bold;">Write the sentence you drew:</label>
+                <input type="text" id="draw-sentence-input" class="ticket-input" placeholder="e.g., He is playing football." style="margin: 5px 0;">
+            </div>
+
+            <button class="btn-action" onclick="submitDrawing()">Submit Drawing 🚀</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 5: CLOSURE -->
+    <div class="screen" id="screen-5">
+        <h2>Stage 5: Exit Ticket 🎟️</h2>
+        <p>Consolidate your learning before leaving class!</p>
+
+        <div class="ticket-card">
+            <div style="font-size: 3.5rem;">🌟</div>
+            <h3>What do you like to do?</h3>
+            <p style="color: #718096; font-size: 0.95rem;">Write 1 sentence using verbs you learned today!</p>
+            <input type="text" id="exit-input" class="ticket-input" placeholder="e.g., I like playing badminton.">
+            <button class="btn-action" onclick="submitExitTicket()">Submit Exit Ticket 🏁</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <div id="modal-icon" style="font-size: 4rem;">🌟</div>
+        <h2 id="modal-title">Great Job!</h2>
+        <p id="modal-msg">You earned +10 Stars!</p>
+        <button class="btn-action" onclick="closeModal()">Continue ▶️</button>
+    </div>
+</div>
+
+<script>
+    let currentUser = "Pupil";
+    let currentStars = 0;
+
+    const simonData = [
+        { command: "Simon says, act like you are playing badminton!", emoji: "🏸", correct: "Playing Badminton", options: ["Playing Badminton", "Playing Guitar", "Swimming", "Dancing"] },
+        { command: "Simon says, act like you are playing the guitar!", emoji: "🎸", correct: "Playing Guitar", options: ["Singing", "Playing Guitar", "Running", "Cooking"] },
+        { command: "Simon says, act like you are swimming!", emoji: "🏊‍♂️", correct: "Swimming", options: ["Swimming", "Playing Badminton", "Reading", "Jumping"] }
+    ];
+    let simonIndex = 0;
+
+    let selectedPronoun = "";
+    let selectedVerb = "";
+
+    const quizData = [
+        { emoji: "🎸", q: "Look at the picture. What is he doing?", correct: "He is playing the guitar.", options: ["He is playing the guitar.", "She is singing.", "They are swimming.", "He is running."] },
+        { emoji: "🏸", q: "Look at the picture. What are they doing?", correct: "They are playing badminton.", options: ["He is playing football.", "They are playing badminton.", "She is dancing.", "They are reading."] },
+        { emoji: "🏊‍♀️", q: "Look at the picture. What is she doing?", correct: "She is swimming.", options: ["She is swimming.", "He is playing guitar.", "They are running.", "She is sleeping."] },
+        { emoji: "🎤", q: "Choose the correct sentence for 🙋‍♀️:", correct: "I am singing.", options: ["I am singing.", "They are singing.", "He is singing.", "She are singing."] },
+        { emoji: "⚽", q: "Look at the picture. What is Ali doing?", correct: "He is playing football.", options: ["He is playing football.", "She is playing football.", "They is playing football.", "I are playing football."] }
+    ];
+    let quizIndex = 0;
+
+    const listeningTexts = [
+        "Ali is playing football in the park.",
+        "Siti is playing the guitar on stage.",
+        "They are swimming in the pool."
+    ];
+    let listenIndex = 0;
+
+    function loginPupil() {
+        const input = document.getElementById('input-username').value.trim();
+        if (input !== "") {
+            currentUser = input;
+            document.getElementById('nav-username').innerText = currentUser;
+            document.getElementById('progress-nav').classList.add('active-nav');
+            switchTab(1);
+        } else {
+            alert("Please key in your name first!");
+        }
+    }
+
+    function switchTab(step) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step-btn').forEach((b, idx) => {
+            b.classList.remove('active');
+            if (idx + 1 < step) b.classList.add('completed');
+            if (idx + 1 === step) b.classList.add('active');
+        });
+        
+        const targetScreen = document.getElementById(`screen-${step}`);
+        if(targetScreen) {
+            targetScreen.classList.add('active');
+        }
+
+        if(step === 1) loadSimonQuestion();
+        if(step === 3) loadQuizQuestion();
+        if(step === 4) initCanvas();
+    }
+
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.85;
+            utterance.pitch = 1.1;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function loadSimonQuestion() {
+        if (simonIndex >= simonData.length) simonIndex = 0;
+        const data = simonData[simonIndex];
+        document.getElementById('simon-emoji').innerText = data.emoji;
+        document.getElementById('simon-command').innerText = `"${data.command}"`;
+        
+        const container = document.getElementById('simon-options');
+        container.innerHTML = '';
+        data.options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkSimon(opt);
+            container.appendChild(btn);
+        });
+    }
+
+    function speakCurrentSimon() {
+        speakText(simonData[simonIndex].command);
+    }
+
+    function checkSimon(selected) {
+        const data = simonData[simonIndex];
+        if (selected === data.correct) {
+            addStars(10);
+            showModal("🎉 Well Done!", `Correct action for ${selected}!`);
+            speakText(`Great job! ${selected}`);
+            simonIndex++;
+            if (simonIndex < simonData.length) {
+                loadSimonQuestion();
+            } else {
+                switchTab(2);
+            }
+        } else {
+            showModal("❌ Try Again!", "Listen to the command carefully!");
+            speakText("Try again!");
+        }
+    }
+
+    function selectPronoun(p, emoji, evt) {
+        selectedPronoun = p;
+        document.querySelectorAll('#pronoun-grid .pill-btn').forEach(b => b.classList.remove('selected'));
+        if(evt && evt.target) evt.target.classList.add('selected');
+        updateSentencePreview();
+    }
+
+    function selectVerb(v, emoji, evt) {
+        selectedVerb = v;
+        document.querySelectorAll('#verb-grid .pill-btn').forEach(b => b.classList.remove('selected'));
+        if(evt && evt.target) evt.target.classList.add('selected');
+        updateSentencePreview();
+    }
+
+    function updateSentencePreview() {
+        const preview = document.getElementById('sentence-preview');
+        if (selectedPronoun || selectedVerb) {
+            preview.innerText = `${selectedPronoun} ${selectedVerb}`.trim();
+        } else {
+            preview.innerText = "Select a subject pronoun...";
+        }
+    }
+
+    function speakSentence() {
+        const text = document.getElementById('sentence-preview').innerText;
+        if(text && text !== "Select a subject pronoun...") speakText(text);
+    }
+
+    function checkSentenceBuilder() {
+        if (selectedPronoun && selectedVerb) {
+            addStars(15);
+            speakSentence();
+            showModal("🌟 Perfect Sentence!", `You created: "${selectedPronoun} ${selectedVerb}"`);
+            switchTab(3);
+        } else {
+            showModal("⚠️ Incomplete!", "Please select both a pronoun and an action verb!");
+        }
+    }
+
+    function loadQuizQuestion() {
+        if (quizIndex >= quizData.length) quizIndex = 0;
+        const q = quizData[quizIndex];
+        document.getElementById('quiz-num').innerText = quizIndex + 1;
+        document.getElementById('quiz-emoji').innerText = q.emoji;
+        document.getElementById('quiz-question').innerText = q.q;
+
+        const container = document.getElementById('quiz-options');
+        container.innerHTML = '';
+        q.options.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkQuiz(opt);
+            container.appendChild(btn);
+        });
+    }
+
+    function checkQuiz(selected) {
+        const q = quizData[quizIndex];
+        if (selected === q.correct) {
+            addStars(10);
+            speakText("Correct!");
+            showModal("✅ Correct!", "Great reading skill!");
+            quizIndex++;
+            if (quizIndex < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                switchTab(4);
+            }
+        } else {
+            showModal("❌ Oops!", "Read the sentence and check the pronoun again!");
+            speakText("Try again!");
+        }
+    }
+
+    let canvas, ctx, drawing = false;
+    let currentColor = '#000000';
+
+    function initCanvas() {
+        canvas = document.getElementById('draw-canvas');
+        if(!canvas) return;
+        ctx = canvas.getContext('2d');
+        
+        canvas.onmousedown = startDraw;
+        canvas.onmouseup = stopDraw;
+        canvas.onmousemove = draw;
+
+        canvas.ontouchstart = (e) => { startDraw(e.touches[0]); };
+        canvas.ontouchend = stopDraw;
+        canvas.ontouchmove = (e) => { draw(e.touches[0]); e.preventDefault(); };
+
+        document.getElementById('listening-text-display').innerText = `"${listeningTexts[listenIndex]}"`;
+    }
+
+    function readListenText() {
+        speakText(listeningTexts[listenIndex]);
+    }
+
+    function startDraw(e) {
+        drawing = true;
+        ctx.beginPath();
+        const rect = canvas.getBoundingClientRect();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function stopDraw() {
+        drawing = false;
+    }
+
+    function draw(e) {
+        if (!drawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+    }
+
+    function setColor(color) {
+        currentColor = color;
+    }
+
+    function clearCanvas() {
+        if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function submitDrawing() {
+        const textInput = document.getElementById('draw-sentence-input').value.trim();
+        if (textInput !== "") {
+            addStars(20);
+            showModal("🎨 Canvas Saved!", "Awesome artwork and listening skill!");
+            speakText(`Great drawing for: ${textInput}`);
+            switchTab(5);
+        } else {
+            alert("Please write the sentence for your drawing!");
+        }
+    }
+
+    function submitExitTicket() {
+        const val = document.getElementById('exit-input').value.trim();
+        if (val !== "") {
+            addStars(15);
+            speakText(`Thank you ${currentUser}! Your exit ticket is submitted.`);
+            showModal("🏆 Quest Completed!", `Superb job today, ${currentUser}! Total Stars: ${currentStars}`);
+        } else {
+            alert("Please write 1 sentence before submitting!");
+        }
+    }
+
+    function addStars(num) {
+        currentStars += num;
+        document.getElementById('star-score').innerText = currentStars;
+    }
+
+    function showModal(title, msg) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-msg').innerText = msg;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    // Enter key shortcut on login input
+    document.getElementById('input-username').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            loginPupil();
+        }
+    });
+</script>
+</body>
+</html>
